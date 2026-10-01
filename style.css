@@ -4,42 +4,145 @@
 
 body {
     margin: 0;
-    background: linear-gradient(#111827, #020617);
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at 20% 20%, #172554, transparent 30%),
+        radial-gradient(circle at 80% 80%, #312e81, transparent 30%),
+        #020617;
+
     color: white;
+
     font-family: Arial, sans-serif;
+}
+
+#menu,
+#gameOver {
+
+    position: fixed;
+
+    inset: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: rgba(2, 6, 23, 0.92);
+
+    z-index: 10;
+
     text-align: center;
 }
 
-#menu {
-    margin-top: 60px;
-}
-
 #menu h1 {
-    font-size: 48px;
+
+    font-size: 50px;
+
+    color: #38bdf8;
+
+    text-shadow:
+        0 0 10px #38bdf8,
+        0 0 30px #2563eb;
 }
 
-#startBtn {
-    background: #ff9800;
+#menu p {
+
+    font-size: 20px;
+
+    color: #cbd5e1;
+}
+
+button {
+
+    margin-top: 25px;
+
+    padding: 15px 40px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: linear-gradient(
+        135deg,
+        #06b6d4,
+        #2563eb
+    );
+
     color: white;
-    border: 0;
-    padding: 15px 45px;
-    border-radius: 10px;
-    font-size: 22px;
+
+    font-size: 20px;
+
+    font-weight: bold;
+
     cursor: pointer;
+
+    box-shadow: 0 0 20px #2563eb;
+
+    transition: 0.2s;
 }
 
-#startBtn:hover {
-    background: #ff6d00;
+button:hover {
+
+    transform: scale(1.08);
+
+    box-shadow:
+        0 0 20px #38bdf8,
+        0 0 40px #2563eb;
 }
 
 #game {
-    display: none;
-    margin: 30px auto;
-    border: 5px solid white;
-    background: #7dd3fc;
+
+    display: block;
+
+    width: 100vw;
+
+    height: 100vh;
+
+    background: transparent;
 }
 
-#message {
-    font-size: 28px;
-    font-weight: bold;
+#gameUI {
+
+    position: fixed;
+
+    top: 20px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    display: flex;
+
+    gap: 40px;
+
+    padding: 12px 25px;
+
+    border-radius: 15px;
+
+    background: rgba(15, 23, 42, 0.8);
+
+    border: 1px solid rgba(255,255,255,0.2);
+
+    font-size: 18px;
+
+    z-index: 5;
+}
+
+#gameOver {
+
+    display: none;
+}
+
+#gameOver h1 {
+
+    color: #ef4444;
+
+    font-size: 55px;
+
+    text-shadow: 0 0 20px red;
 }

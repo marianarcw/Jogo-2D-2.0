@@ -3,23 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Água e Fogo</title>
+
+    <title>Nave vs Meteoros</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
     <div id="menu">
-        <h1>🔥 Água e Fogo 💧</h1>
-        <button id="startBtn">JOGAR</button>
+        <h1>🚀 NAVE VS METEOROS</h1>
 
-        <p>🔥 Fogo: A / D / W</p>
-        <p>💧 Água: ← / → / ↑</p>
+        <p>Sobreviva o máximo que conseguir!</p>
+
+        <button id="start">JOGAR</button>
     </div>
 
-    <canvas id="game" width="900" height="550"></canvas>
+    <div id="gameUI">
 
-    <div id="message"></div>
+        <div>
+            ❤️ Vida: <span id="life">3</span>
+        </div>
+
+        <div>
+            ⭐ Pontos: <span id="score">0</span>
+        </div>
+
+        <div>
+            🏆 Recorde: <span id="highScore">0</span>
+        </div>
+
+    </div>
+
+    <canvas id="game"></canvas>
+
+    <div id="gameOver">
+
+        <h1>💥 GAME OVER</h1>
+
+        <p>Pontuação: <span id="finalScore">0</span></p>
+
+        <button id="restart">JOGAR NOVAMENTE</button>
+
+    </div>
 
     <script src="script.js"></script>
 
