@@ -4,45 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Água e Fogo</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <div id="menu">
         <h1>🔥 Água e Fogo 💧</h1>
+        <button id="startBtn">JOGAR</button>
 
-        <button id="startBtn">Jogar</button>
-
-        <div id="info">
-
-            <h2>Controles</h2>
-
-            <div class="playerInfo">
-
-                <h3>🔥 Fogo</h3>
-
-                <p>A = Esquerda</p>
-                <p>D = Direita</p>
-                <p>W = Pular</p>
-
-            </div>
-
-            <div class="playerInfo">
-
-                <h3>💧 Água</h3>
-
-                <p>← = Esquerda</p>
-                <p>→ = Direita</p>
-                <p>↑ = Pular</p>
-
-            </div>
-
-        </div>
-
+        <p>🔥 Fogo: A / D / W</p>
+        <p>💧 Água: ← / → / ↑</p>
     </div>
 
-    <canvas id="game" width="1000" height="600"></canvas>
+    <canvas id="game" width="900" height="550"></canvas>
+
+    <div id="message"></div>
 
     <script src="script.js"></script>
 
