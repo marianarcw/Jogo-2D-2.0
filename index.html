@@ -3,51 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Nave vs Meteoros</title>
-
+    <title>Naves - 2 Jogadores</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div id="menu">
-        <h1>🚀 NAVE VS METEOROS</h1>
+<div id="menu">
 
-        <p>Sobreviva o máximo que conseguir!</p>
+    <h1>🚀 NAVE VS METEOROS ☄️</h1>
 
-        <button id="start">JOGAR</button>
-    </div>
+    <p>Jogo para 2 jogadores</p>
 
-    <div id="gameUI">
+    <button id="start">JOGAR</button>
 
+    <div class="controls">
         <div>
-            ❤️ Vida: <span id="life">3</span>
+            <h2>🔴 Player 1</h2>
+            <p>W A S D = Mover</p>
+            <p>Espaço = Atirar</p>
         </div>
 
         <div>
-            ⭐ Pontos: <span id="score">0</span>
+            <h2>🔵 Player 2</h2>
+            <p>Setas = Mover</p>
+            <p>Enter = Atirar</p>
         </div>
-
-        <div>
-            🏆 Recorde: <span id="highScore">0</span>
-        </div>
-
     </div>
 
-    <canvas id="game"></canvas>
+</div>
 
-    <div id="gameOver">
+<div id="ui">
 
-        <h1>💥 GAME OVER</h1>
-
-        <p>Pontuação: <span id="finalScore">0</span></p>
-
-        <button id="restart">JOGAR NOVAMENTE</button>
-
+    <div class="player1">
+        🔴 P1:
+        ❤️ <span id="life1">3</span>
+        ⭐ <span id="score1">0</span>
     </div>
 
-    <script src="script.js"></script>
+    <div class="player2">
+        🔵 P2:
+        ❤️ <span id="life2">3</span>
+        ⭐ <span id="score2">0</span>
+    </div>
+
+</div>
+
+<canvas id="game"></canvas>
+
+<div id="gameOver">
+
+    <h1>💥 FIM DE JOGO</h1>
+
+    <p id="winner"></p>
+
+    <button id="restart">
+        JOGAR NOVAMENTE
+    </button>
+
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>

@@ -4,21 +4,23 @@
 
 body {
     margin: 0;
-
     overflow: hidden;
 
-    background:
-        radial-gradient(circle at 20% 20%, #172554, transparent 30%),
-        radial-gradient(circle at 80% 80%, #312e81, transparent 30%),
-        #020617;
+    font-family: Arial, sans-serif;
 
     color: white;
 
-    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(
+            circle at center,
+            #172554,
+            #020617 70%
+        );
 }
 
-#menu,
-#gameOver {
+/* MENU */
+
+#menu {
 
     position: fixed;
 
@@ -28,11 +30,11 @@ body {
 
     flex-direction: column;
 
-    justify-content: center;
-
     align-items: center;
 
-    background: rgba(2, 6, 23, 0.92);
+    justify-content: center;
+
+    background: rgba(2,6,23,.96);
 
     z-index: 10;
 
@@ -41,7 +43,7 @@ body {
 
 #menu h1 {
 
-    font-size: 50px;
+    font-size: 48px;
 
     color: #38bdf8;
 
@@ -59,31 +61,31 @@ body {
 
 button {
 
-    margin-top: 25px;
-
-    padding: 15px 40px;
-
     border: none;
 
     border-radius: 12px;
 
-    background: linear-gradient(
-        135deg,
-        #06b6d4,
-        #2563eb
-    );
-
-    color: white;
+    padding: 15px 45px;
 
     font-size: 20px;
 
     font-weight: bold;
 
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #06b6d4,
+            #2563eb
+        );
+
     cursor: pointer;
 
-    box-shadow: 0 0 20px #2563eb;
+    box-shadow:
+        0 0 20px #2563eb;
 
-    transition: 0.2s;
+    transition: .2s;
 }
 
 button:hover {
@@ -91,9 +93,32 @@ button:hover {
     transform: scale(1.08);
 
     box-shadow:
-        0 0 20px #38bdf8,
-        0 0 40px #2563eb;
+        0 0 30px #38bdf8;
 }
+
+.controls {
+
+    display: flex;
+
+    gap: 80px;
+
+    margin-top: 35px;
+}
+
+.controls div {
+
+    padding: 20px;
+
+    border-radius: 15px;
+
+    background: #0f172a;
+
+    border: 1px solid #334155;
+
+    min-width: 220px;
+}
+
+/* CANVAS */
 
 #game {
 
@@ -102,15 +127,15 @@ button:hover {
     width: 100vw;
 
     height: 100vh;
-
-    background: transparent;
 }
 
-#gameUI {
+/* INTERFACE */
+
+#ui {
 
     position: fixed;
 
-    top: 20px;
+    top: 15px;
 
     left: 50%;
 
@@ -118,31 +143,55 @@ button:hover {
 
     display: flex;
 
-    gap: 40px;
+    gap: 100px;
 
-    padding: 12px 25px;
+    padding: 12px 30px;
 
     border-radius: 15px;
 
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(15,23,42,.85);
 
-    border: 1px solid rgba(255,255,255,0.2);
-
-    font-size: 18px;
+    font-size: 20px;
 
     z-index: 5;
 }
 
+.player1 {
+
+    color: #ff5252;
+}
+
+.player2 {
+
+    color: #38bdf8;
+}
+
+/* GAME OVER */
+
 #gameOver {
 
+    position: fixed;
+
+    inset: 0;
+
     display: none;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background: rgba(0,0,0,.85);
+
+    z-index: 20;
 }
 
 #gameOver h1 {
 
-    color: #ef4444;
-
     font-size: 55px;
+
+    color: #ef4444;
 
     text-shadow: 0 0 20px red;
 }

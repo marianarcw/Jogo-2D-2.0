@@ -2,90 +2,152 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 const menu = document.getElementById("menu");
-const gameOverScreen = document.getElementById("gameOver");
+const gameOver = document.getElementById("gameOver");
 
 const startButton = document.getElementById("start");
 const restartButton = document.getElementById("restart");
 
-const lifeText = document.getElementById("life");
-const scoreText = document.getElementById("score");
-const highScoreText = document.getElementById("highScore");
-const finalScoreText = document.getElementById("finalScore");
+const winnerText = document.getElementById("winner");
+
+const keys = {};
 
 let width;
 let height;
 
 let playing = false;
 
-let score = 0;
-let lives = 3;
-
-let highScore =
-    Number(localStorage.getItem("naveRecorde")) || 0;
-
-highScoreText.textContent = highScore;
-
-const keys = {};
-
-let bullets = [];
 let meteors = [];
+let bullets = [];
 let particles = [];
 let stars = [];
 
-const player = {
-
-    x: 0,
-    y: 0,
-
-    width: 45,
-    height: 55,
-
-    speed: 7,
-
-    cooldown: 0
-
-};
+let spawnTimer = 0;
 
 
 /* =========================
-   TAMANHO DA TELA
+   TELA
 ========================= */
 
 function resize() {
 
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
+    width = canvas.width =
+        window.innerWidth;
 
-    player.x = width / 2;
-    player.y = height - 100;
+    height = canvas.height =
+        window.innerHeight;
 }
 
-window.addEventListener("resize", resize);
+window.addEventListener(
+    "resize",
+    resize
+);
 
 resize();
 
 
 /* =========================
-   CONTROLES
+   TECLADO
 ========================= */
 
-document.addEventListener("keydown", event => {
+document.addEventListener(
+    "keydown",
+    e => {
 
-    keys[event.key.toLowerCase()] = true;
+        keys[e.key] = true;
 
-    if (
-        event.code === "Space" ||
-        event.key.startsWith("Arrow")
-    ) {
-
-        event.preventDefault();
+        if (
+            e.code === "Space" ||
+            e.key === "Enter" ||
+            e.key.startsWith("Arrow")
+        ) {
+            e.preventDefault();
+        }
     }
-});
+);
 
-document.addEventListener("keyup", event => {
+document.addEventListener(
+    "keyup",
+    e => {
 
-    keys[event.key.toLowerCase()] = false;
-});
+        keys[e.key] = false;
+    }
+);
+
+
+/* =========================
+   PLAYER 1
+========================= */
+
+const player1 = {
+
+    x: 200,
+    y: 0,
+
+    size: 25,
+
+    speed: 6,
+
+    color: "#ff3030",
+
+    lives: 3,
+
+    score: 0,
+
+    cooldown: 0,
+
+    alive: true,
+
+    controls: {
+
+        up: "w",
+        down: "s",
+        left: "a",
+        right: "d",
+        shoot: " "
+
+    }
+};
+
+
+/* =========================
+   PLAYER 2
+========================= */
+
+const player2 = {
+
+    x: 600,
+    y: 0,
+
+    size: 25,
+
+    speed: 6,
+
+    color: "#38bdf8",
+
+    lives: 3,
+
+    score: 0,
+
+    cooldown: 0,
+
+    alive: true,
+
+    controls: {
+
+        up: "ArrowUp",
+        down: "ArrowDown",
+        left: "ArrowLeft",
+        right: "ArrowRight",
+        shoot: "Enter"
+
+    }
+};
+
+
+const players = [
+    player1,
+    player2
+];
 
 
 /* =========================
@@ -96,7 +158,7 @@ function createStars() {
 
     stars = [];
 
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < 150; i++) {
 
         stars.push({
 
@@ -104,12 +166,38 @@ function createStars() {
 
             y: Math.random() * height,
 
-            size: Math.random() * 2 + 1,
+            size: Math.random() * 2,
 
-            speed: Math.random() * 2 + 0.5
+            speed:
+                Math.random() * 2 + .5
 
         });
     }
+}
+
+
+/* =========================
+   RESET
+========================= */
+
+function resetPlayers() {
+
+    player1.x = width * .3;
+    player1.y = height - 100;
+
+    player2.x = width * .7;
+    player2.y = height - 100;
+
+    player1.lives = 3;
+    player2.lives = 3;
+
+    player1.score = 0;
+    player2.score = 0;
+
+    player1.alive = true;
+    player2.alive = true;
+
+    updateUI();
 }
 
 
@@ -120,25 +208,26 @@ function createStars() {
 function createMeteor() {
 
     const size =
-        Math.random() * 35 + 25;
+        Math.random() * 25 + 20;
 
     meteors.push({
 
-        x: Math.random() * width,
+        x:
+            Math.random() * width,
 
-        y: -size,
+        y:
+            -size,
 
         size: size,
 
         speed:
-            Math.random() * 3 + 2 + score / 500,
+            Math.random() * 3 + 2,
 
         rotation:
-            Math.random() * Math.PI,
+            Math.random() * 6,
 
         rotationSpeed:
-            Math.random() * 0.05 - 0.025
-
+            Math.random() * .05 - .025
     });
 }
 
@@ -147,7 +236,10 @@ function createMeteor() {
    TIRO
 ========================= */
 
-function shoot() {
+function shoot(player) {
+
+    if (!player.alive)
+        return;
 
     if (player.cooldown > 0)
         return;
@@ -156,106 +248,60 @@ function shoot() {
 
         x: player.x,
 
-        y: player.y - 25,
+        y: player.y - 30,
 
-        width: 5,
+        owner: player,
 
-        height: 20,
-
-        speed: 12
+        speed: 11
 
     });
 
-    player.cooldown = 10;
+    player.cooldown = 12;
 }
 
 
 /* =========================
-   PARTÍCULAS
+   MOVIMENTO
 ========================= */
 
-function explosion(x, y, color) {
+function updatePlayer(player) {
 
-    for (let i = 0; i < 25; i++) {
+    if (!player.alive)
+        return;
 
-        particles.push({
-
-            x: x,
-
-            y: y,
-
-            vx:
-                Math.random() * 8 - 4,
-
-            vy:
-                Math.random() * 8 - 4,
-
-            life: 30,
-
-            color: color
-
-        });
-    }
-}
-
-
-/* =========================
-   JOGADOR
-========================= */
-
-function updatePlayer() {
-
-    if (
-        keys["a"] ||
-        keys["arrowleft"]
-    ) {
-
-        player.x -= player.speed;
-    }
-
-    if (
-        keys["d"] ||
-        keys["arrowright"]
-    ) {
-
-        player.x += player.speed;
-    }
-
-    if (
-        keys["w"] ||
-        keys["arrowup"]
-    ) {
-
+    if (keys[player.controls.up])
         player.y -= player.speed;
-    }
 
-    if (
-        keys["s"] ||
-        keys["arrowdown"]
-    ) {
-
+    if (keys[player.controls.down])
         player.y += player.speed;
-    }
+
+    if (keys[player.controls.left])
+        player.x -= player.speed;
+
+    if (keys[player.controls.right])
+        player.x += player.speed;
+
+    if (keys[player.controls.shoot])
+        shoot(player);
 
     player.x = Math.max(
         30,
-        Math.min(width - 30, player.x)
+        Math.min(
+            width - 30,
+            player.x
+        )
     );
 
     player.y = Math.max(
-        60,
-        Math.min(height - 40, player.y)
+        70,
+        Math.min(
+            height - 40,
+            player.y
+        )
     );
 
-    if (keys[" "] || keys["space"]) {
-
-        shoot();
-    }
-
-    if (player.cooldown > 0) {
-
+    if (player.cooldown > 0)
         player.cooldown--;
-    }
 }
 
 
@@ -265,7 +311,11 @@ function updatePlayer() {
 
 function updateBullets() {
 
-    for (let i = bullets.length - 1; i >= 0; i--) {
+    for (
+        let i = bullets.length - 1;
+        i >= 0;
+        i--
+    ) {
 
         const bullet = bullets[i];
 
@@ -295,7 +345,11 @@ function updateMeteors() {
 
         meteor.y += meteor.speed;
 
-        meteor.rotation += meteor.rotationSpeed;
+        meteor.rotation +=
+            meteor.rotationSpeed;
+
+
+        /* passou */
 
         if (
             meteor.y >
@@ -304,85 +358,152 @@ function updateMeteors() {
 
             meteors.splice(i, 1);
 
-            score += 5;
-
             continue;
         }
 
-        /* colisão com jogador */
 
-        const distance = Math.hypot(
+        /* bateu no jogador */
 
-            meteor.x - player.x,
+        for (const player of players) {
 
-            meteor.y - player.y
+            if (!player.alive)
+                continue;
 
-        );
+            const distance =
+                Math.hypot(
+                    meteor.x - player.x,
+                    meteor.y - player.y
+                );
 
-        if (
-            distance <
-            meteor.size + 25
-        ) {
+            if (
+                distance <
+                meteor.size + player.size
+            ) {
 
-            explosion(
-                meteor.x,
-                meteor.y,
-                "#ef4444"
-            );
+                damagePlayer(player);
 
-            meteors.splice(i, 1);
+                explode(
+                    meteor.x,
+                    meteor.y,
+                    "#ef4444"
+                );
 
-            lives--;
+                meteors.splice(i, 1);
 
-            lifeText.textContent = lives;
-
-            if (lives <= 0) {
-
-                endGame();
+                break;
             }
-
-            continue;
         }
+    }
+}
 
 
-        /* colisão com balas */
+/* =========================
+   DANO
+========================= */
+
+function damagePlayer(player) {
+
+    player.lives--;
+
+    explode(
+        player.x,
+        player.y,
+        player.color
+    );
+
+    if (player.lives <= 0) {
+
+        player.alive = false;
+    }
+
+    updateUI();
+
+    checkGameOver();
+}
+
+
+/* =========================
+   COLISÃO BALAS
+========================= */
+
+function checkBulletCollisions() {
+
+    for (
+        let i = bullets.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const bullet = bullets[i];
 
         for (
-            let j = bullets.length - 1;
+            let j = meteors.length - 1;
             j >= 0;
             j--
         ) {
 
-            const bullet = bullets[j];
+            const meteor = meteors[j];
 
-            const distance = Math.hypot(
-
-                meteor.x - bullet.x,
-
-                meteor.y - bullet.y
-
-            );
+            const distance =
+                Math.hypot(
+                    bullet.x - meteor.x,
+                    bullet.y - meteor.y
+                );
 
             if (
                 distance <
                 meteor.size
             ) {
 
-                explosion(
+                bullet.owner.score += 10;
+
+                explode(
                     meteor.x,
                     meteor.y,
                     "#f97316"
                 );
 
-                meteors.splice(i, 1);
+                bullets.splice(i, 1);
 
-                bullets.splice(j, 1);
+                meteors.splice(j, 1);
 
-                score += 20;
+                updateUI();
 
                 break;
             }
         }
+    }
+}
+
+
+/* =========================
+   EXPLOSÃO
+========================= */
+
+function explode(
+    x,
+    y,
+    color
+) {
+
+    for (let i = 0; i < 20; i++) {
+
+        particles.push({
+
+            x: x,
+
+            y: y,
+
+            vx:
+                Math.random() * 8 - 4,
+
+            vy:
+                Math.random() * 8 - 4,
+
+            life: 30,
+
+            color: color
+        });
     }
 }
 
@@ -399,26 +520,21 @@ function updateParticles() {
         i--
     ) {
 
-        const particle = particles[i];
+        const p = particles[i];
 
-        particle.x += particle.vx;
+        p.x += p.vx;
+        p.y += p.vy;
 
-        particle.y += particle.vy;
+        p.life--;
 
-        particle.vy += 0.1;
-
-        particle.life--;
-
-        if (particle.life <= 0) {
-
+        if (p.life <= 0)
             particles.splice(i, 1);
-        }
     }
 }
 
 
 /* =========================
-   DESENHAR FUNDO
+   FUNDO
 ========================= */
 
 function drawBackground() {
@@ -437,7 +553,7 @@ function drawBackground() {
         ctx.fillStyle = "white";
 
         ctx.globalAlpha =
-            Math.random() * 0.6 + 0.4;
+            .4 + Math.random() * .6;
 
         ctx.fillRect(
             star.x,
@@ -448,13 +564,8 @@ function drawBackground() {
 
         star.y += star.speed;
 
-        if (star.y > height) {
-
+        if (star.y > height)
             star.y = 0;
-
-            star.x =
-                Math.random() * width;
-        }
     }
 
     ctx.globalAlpha = 1;
@@ -462,10 +573,13 @@ function drawBackground() {
 
 
 /* =========================
-   DESENHAR NAVE
+   DESENHAR PLAYER
 ========================= */
 
-function drawPlayer() {
+function drawPlayer(player) {
+
+    if (!player.alive)
+        return;
 
     ctx.save();
 
@@ -474,23 +588,27 @@ function drawPlayer() {
         player.y
     );
 
+
     /* chama */
 
-    ctx.fillStyle = "#f97316";
+    ctx.fillStyle =
+        "#f97316";
 
     ctx.beginPath();
 
-    ctx.moveTo(-10, 25);
+    ctx.moveTo(-8, 25);
 
-    ctx.lineTo(0, 45);
+    ctx.lineTo(0, 42);
 
-    ctx.lineTo(10, 25);
+    ctx.lineTo(8, 25);
 
     ctx.fill();
 
+
     /* nave */
 
-    ctx.fillStyle = "#e2e8f0";
+    ctx.fillStyle =
+        player.color;
 
     ctx.beginPath();
 
@@ -506,9 +624,11 @@ function drawPlayer() {
 
     ctx.fill();
 
+
     /* janela */
 
-    ctx.fillStyle = "#38bdf8";
+    ctx.fillStyle =
+        "#e0f2fe";
 
     ctx.beginPath();
 
@@ -522,30 +642,13 @@ function drawPlayer() {
 
     ctx.fill();
 
-    /* detalhes */
-
-    ctx.strokeStyle = "#475569";
-
-    ctx.lineWidth = 4;
-
-    ctx.beginPath();
-
-    ctx.moveTo(-15, 18);
-
-    ctx.lineTo(-25, 28);
-
-    ctx.moveTo(15, 18);
-
-    ctx.lineTo(25, 28);
-
-    ctx.stroke();
 
     ctx.restore();
 }
 
 
 /* =========================
-   DESENHAR METEOROS
+   METEOROS
 ========================= */
 
 function drawMeteors() {
@@ -563,18 +666,19 @@ function drawMeteors() {
             meteor.rotation
         );
 
-        ctx.fillStyle = "#78716c";
+        ctx.fillStyle =
+            "#78716c";
 
         ctx.beginPath();
 
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < 8; i++) {
 
             const angle =
-                i * Math.PI * 2 / 9;
+                i * Math.PI * 2 / 8;
 
             const radius =
                 meteor.size *
-                (0.75 + Math.random() * 0.25);
+                (.7 + Math.random() * .3);
 
             const x =
                 Math.cos(angle) * radius;
@@ -598,47 +702,50 @@ function drawMeteors() {
 
 
 /* =========================
-   DESENHAR BALAS
+   BALAS
 ========================= */
 
 function drawBullets() {
 
-    ctx.fillStyle = "#22d3ee";
-
     for (const bullet of bullets) {
 
+        ctx.fillStyle =
+            bullet.owner.color;
+
+        ctx.shadowBlur = 10;
+
+        ctx.shadowColor =
+            bullet.owner.color;
+
         ctx.fillRect(
-
-            bullet.x - 2,
-
+            bullet.x - 3,
             bullet.y,
-
-            bullet.width,
-
-            bullet.height
-
+            6,
+            20
         );
+
+        ctx.shadowBlur = 0;
     }
 }
 
 
 /* =========================
-   DESENHAR PARTÍCULAS
+   PARTÍCULAS
 ========================= */
 
 function drawParticles() {
 
-    for (const particle of particles) {
+    for (const p of particles) {
 
         ctx.globalAlpha =
-            particle.life / 30;
+            p.life / 30;
 
         ctx.fillStyle =
-            particle.color;
+            p.color;
 
         ctx.fillRect(
-            particle.x,
-            particle.y,
+            p.x,
+            p.y,
             5,
             5
         );
@@ -649,39 +756,73 @@ function drawParticles() {
 
 
 /* =========================
-   ATUALIZAR
+   UI
 ========================= */
 
-function update() {
+function updateUI() {
 
-    updatePlayer();
+    document.getElementById(
+        "life1"
+    ).textContent =
+        player1.lives;
 
-    updateBullets();
+    document.getElementById(
+        "life2"
+    ).textContent =
+        player2.lives;
 
-    updateMeteors();
+    document.getElementById(
+        "score1"
+    ).textContent =
+        player1.score;
 
-    updateParticles();
-
-    scoreText.textContent =
-        Math.floor(score);
+    document.getElementById(
+        "score2"
+    ).textContent =
+        player2.score;
 }
 
 
 /* =========================
-   DESENHAR
+   GAME OVER
 ========================= */
 
-function draw() {
+function checkGameOver() {
 
-    drawBackground();
+    if (
+        !player1.alive &&
+        !player2.alive
+    ) {
 
-    drawBullets();
+        playing = false;
 
-    drawMeteors();
+        if (
+            player1.score >
+            player2.score
+        ) {
 
-    drawParticles();
+            winnerText.textContent =
+                "🏆 Player 1 venceu!";
 
-    drawPlayer();
+        }
+        else if (
+            player2.score >
+            player1.score
+        ) {
+
+            winnerText.textContent =
+                "🏆 Player 2 venceu!";
+
+        }
+        else {
+
+            winnerText.textContent =
+                "🤝 Empate!";
+        }
+
+        gameOver.style.display =
+            "flex";
+    }
 }
 
 
@@ -694,108 +835,69 @@ function gameLoop() {
     if (!playing)
         return;
 
-    update();
+    spawnTimer++;
 
-    draw();
+    if (spawnTimer > 35) {
+
+        createMeteor();
+
+        spawnTimer = 0;
+    }
+
+    updatePlayer(player1);
+    updatePlayer(player2);
+
+    updateBullets();
+
+    updateMeteors();
+
+    checkBulletCollisions();
+
+    updateParticles();
+
+    drawBackground();
+
+    drawMeteors();
+
+    drawBullets();
+
+    drawParticles();
+
+    drawPlayer(player1);
+    drawPlayer(player2);
 
     requestAnimationFrame(gameLoop);
 }
 
 
 /* =========================
-   COMEÇAR
+   INICIAR
 ========================= */
 
 function startGame() {
 
-    score = 0;
-
-    lives = 3;
-
-    bullets = [];
-
-    meteors = [];
-
-    particles = [];
-
-    player.x = width / 2;
-
-    player.y = height - 100;
-
-    lifeText.textContent = lives;
-
-    scoreText.textContent = score;
-
-    gameOverScreen.style.display = "none";
-
     menu.style.display = "none";
 
-    playing = true;
+    gameOver.style.display = "none";
+
+    bullets = [];
+    meteors = [];
+    particles = [];
+
+    spawnTimer = 0;
+
+    resetPlayers();
 
     createStars();
+
+    playing = true;
 
     gameLoop();
 }
 
 
-/* =========================
-   GAME OVER
-========================= */
+startButton.onclick =
+    startGame;
 
-function endGame() {
-
-    playing = false;
-
-    finalScoreText.textContent =
-        Math.floor(score);
-
-    if (score > highScore) {
-
-        highScore = Math.floor(score);
-
-        localStorage.setItem(
-            "naveRecorde",
-            highScore
-        );
-
-        highScoreText.textContent =
-            highScore;
-    }
-
-    gameOverScreen.style.display =
-        "flex";
-}
-
-
-/* =========================
-   BOTÕES
-========================= */
-
-startButton.addEventListener(
-    "click",
-    startGame
-);
-
-restartButton.addEventListener(
-    "click",
-    startGame
-);
-
-
-/* =========================
-   CRIAR METEOROS
-========================= */
-
-setInterval(() => {
-
-    if (playing) {
-
-        createMeteor();
-
-        if (Math.random() < 0.3) {
-
-            createMeteor();
-        }
-    }
-
-}, 700);
+restartButton.onclick =
+    startGame;
