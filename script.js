@@ -1,140 +1,212 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+const menu = document.getElementById("menu");
+const startBtn = document.getElementById("startBtn");
+
+startBtn.addEventListener("click", () => {
+    menu.style.display = "none";
+    canvas.style.display = "block";
+    gameLoop();
+});
+
+const gravity = 0.7;
+
 const keys = {};
 
-document.addEventListener("keydown", e=>{
-    keys[e.key]=true;
+document.addEventListener("keydown", (e) => {
+    keys[e.key] = true;
 });
 
-document.addEventListener("keyup", e=>{
-    keys[e.key]=false;
+document.addEventListener("keyup", (e) => {
+    keys[e.key] = false;
 });
 
-const paddleWidth=15;
-const paddleHeight=100;
+class Player {
 
-const player1={
-    x:20,
-    y:200,
-    score:0
-};
+    constructor(x, y, color, controls){
 
-const player2={
-    x:865,
-    y:200,
-    score:0
-};
+        this.x = x;
+        this.y = y;
 
-const ball={
-    x:450,
-    y:250,
-    radius:10,
-    speedX:5,
-    speedY:4
-};
+        this.width = 35;
+        this.height = 50;
 
-function drawRect(x,y,w,h,color){
-    ctx.fillStyle=color;
-    ctx.fillRect(x,y,w,h);
-}
+        this.color = color;
 
-function drawBall(){
-    ctx.beginPath();
-    ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);
-    ctx.fillStyle="white";
-    ctx.fill();
-}
+        this.vx = 0;
+        this.vy = 0;
 
-function movePlayers(){
+        this.speed = 4;
+        this.jumpForce = -12;
 
-    if(keys["w"])
-        player1.y-=7;
+        this.onGround = false;
 
-    if(keys["s"])
-        player1.y+=7;
-
-    if(keys["ArrowUp"])
-        player2.y-=7;
-
-    if(keys["ArrowDown"])
-        player2.y+=7;
-
-    player1.y=Math.max(0,Math.min(canvas.height-paddleHeight,player1.y));
-    player2.y=Math.max(0,Math.min(canvas.height-paddleHeight,player2.y));
-
-}
-
-function moveBall(){
-
-    ball.x+=ball.speedX;
-    ball.y+=ball.speedY;
-
-    if(ball.y<10 || ball.y>490)
-        ball.speedY*=-1;
-
-    if(
-        ball.x<player1.x+paddleWidth &&
-        ball.y>player1.y &&
-        ball.y<player1.y+paddleHeight
-    ){
-        ball.speedX*=-1;
+        this.controls = controls;
     }
 
-    if(
-        ball.x>player2.x &&
-        ball.y>player2.y &&
-        ball.y<player2.y+paddleHeight
-    ){
-        ball.speedX*=-1;
+    update(){
+
+        this.vx = 0;
+
+        if(keys[this.controls.left]){
+            this.vx = -this.speed;
+        }
+
+        if(keys[this.controls.right]){
+            this.vx = this.speed;
+        }
+
+        if(keys[this.controls.jump] && this.onGround){
+            this.vy = this.jumpForce;
+            this.onGround = false;
+        }
+
+        this.vy += gravity;
+
+        this.x += this.vx;
+        this.y += this.vy;
+
+        this.onGround = false;
+
+        for(const platform of platforms){
+
+            if(
+                this.x < platform.x + platform.width &&
+                this.x + this.width > platform.x &&
+                this.y < platform.y + platform.height &&
+                this.y + this.height > platform.y
+            ){
+
+                if(this.vy > 0){
+
+                    this.y = platform.y - this.height;
+                    this.vy = 0;
+                    this.onGround = true;
+
+                }
+
+            }
+
+        }
+
+        if(this.x < 0) this.x = 0;
+        if(this.x + this.width > canvas.width)
+            this.x = canvas.width - this.width;
+
+        if(this.y > canvas.height){
+
+            this.x = 100;
+            this.y = 100;
+            this.vy = 0;
+
+        }
+
     }
 
-    if(ball.x<0){
-        player2.score++;
-        resetBall();
+    draw(){
+
+        ctx.fillStyle = this.color;
+
+        ctx.fillRect(
+            this.x,
+            this.y,
+            this.width,
+            this.height
+        );
+
     }
 
-    if(ball.x>900){
-        player1.score++;
-        resetBall();
+}
+
+const fire = new Player(
+    100,
+    100,
+    "red",
+    {
+        left:"a",
+        right:"d",
+        jump:"w"
+    }
+);
+
+const water = new Player(
+    200,
+    100,
+    "deepskyblue",
+    {
+        left:"ArrowLeft",
+        right:"ArrowRight",
+        jump:"ArrowUp"
+    }
+);
+
+const platforms = [
+
+    {
+        x:0,
+        y:560,
+        width:1000,
+        height:40
+    },
+
+    {
+        x:150,
+        y:450,
+        width:180,
+        height:20
+    },
+
+    {
+        x:450,
+        y:370,
+        width:180,
+        height:20
+    },
+
+    {
+        x:700,
+        y:280,
+        width:180,
+        height:20
+    }
+
+];
+
+function drawPlatforms(){
+
+    ctx.fillStyle="#654321";
+
+    for(const p of platforms){
+
+        ctx.fillRect(
+            p.x,
+            p.y,
+            p.width,
+            p.height
+        );
+
     }
 
 }
 
-function resetBall(){
+function gameLoop(){
 
-    ball.x=450;
-    ball.y=250;
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
-    ball.speedX*=-1;
+    drawPlatforms();
 
-    document.getElementById("score1").textContent=player1.score;
-    document.getElementById("score2").textContent=player2.score;
+    fire.update();
+    water.update();
 
-}
+    fire.draw();
+    water.draw();
 
-function draw(){
-
-    ctx.clearRect(0,0,900,500);
-
-    drawRect(player1.x,player1.y,paddleWidth,paddleHeight,"red");
-
-    drawRect(player2.x,player2.y,paddleWidth,paddleHeight,"deepskyblue");
-
-    drawBall();
+    requestAnimationFrame(gameLoop);
 
 }
-
-function game(){
-
-    movePlayers();
-
-    moveBall();
-
-    draw();
-
-    requestAnimationFrame(game);
-
-}
-
-game();

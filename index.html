@@ -1,27 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pong 2 Jogadores</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Água e Fogo</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>PONG - 2 JOGADORES</h2>
+    <div id="menu">
+        <h1>🔥 Água e Fogo 💧</h1>
 
-<div id="score">
-<span id="score1">0</span> x <span id="score2">0</span>
-</div>
+        <button id="startBtn">Jogar</button>
 
-<canvas id="game" width="900" height="500"></canvas>
+        <div id="info">
 
-<p>
-Jogador 1: W / S<br>
-Jogador 2: ↑ / ↓
-</p>
+            <h2>Controles</h2>
 
-<script src="script.js"></script>
+            <div class="playerInfo">
+
+                <h3>🔥 Fogo</h3>
+
+                <p>A = Esquerda</p>
+                <p>D = Direita</p>
+                <p>W = Pular</p>
+
+            </div>
+
+            <div class="playerInfo">
+
+                <h3>💧 Água</h3>
+
+                <p>← = Esquerda</p>
+                <p>→ = Direita</p>
+                <p>↑ = Pular</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <canvas id="game" width="1000" height="600"></canvas>
+
+    <script src="script.js"></script>
 
 </body>
 </html>
